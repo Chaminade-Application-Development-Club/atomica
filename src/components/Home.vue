@@ -5,7 +5,7 @@
   </div>
 </template>
 
-<script lang="ts">
+<script lang = "ts">
 import { Component, Vue } from 'vue-property-decorator';
 import HelloWorld from '@/pages/HelloWorld.vue'; // @ is an alias to /src
 
@@ -15,6 +15,5 @@ import HelloWorld from '@/pages/HelloWorld.vue'; // @ is an alias to /src
   },
 })
 export default class Home extends Vue {
-  
 }
 </script>

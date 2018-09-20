@@ -3,7 +3,7 @@ module.exports = {
   lintOnSave: process.env.NODE_ENV !== 'production',
   devServer: {
     port: 8080,
-    host: 'localhost',
+    host: '0.0.0.0',
     https: true,
     open: true
   },
