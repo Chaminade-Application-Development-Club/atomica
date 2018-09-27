@@ -54,8 +54,8 @@
 
 <script lang = "ts">
 import Vue from "vue";
-import Component from "vue-class-component"
-import firebase from "firebase";
+import Component from "vue-class-component";
+import firebase from "firebase/app";
 import AvatarMenu from "@/components/AvatarMenu.vue";
 
 const credential = require("@/api/credentials.json");

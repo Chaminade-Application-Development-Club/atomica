@@ -1,101 +1,115 @@
 <template>
   <v-container fluid="true">
-    <iframe height="800" width="800" src="https://docs.google.com/spreadsheets/d/e/2PACX-1vShPLKlmzyCODOTAM0K2YzOy5FVqmf1T1v2XYUGnohZ0aAhrn-UsoPu32xNGrgOHv1EOr7KzIEpB9UA/pubhtml?gid=931231422&amp;single=true&amp;widget=true&amp;headers=false"></iframe>
-    <!--
     <v-data-table
       :headers="this.headers"
-      :items="this.people"
+      :items="this.leaderboard"
       class="elevation-1"
+      :loading="isLoading"
+      :pagination.sync = "pagination"
     >
       <template slot="items" slot-scope="props">
-        <td>{{ props.item.name }}</td>
-        <td class="text-xs-right">{{ props.item.rank }}</td>
-        <td class="text-xs-right">{{ props.item.xp }}</td>
-        <td class="text-xs-right">{{ props.item.class }}</td>
-        <td class="text-xs-right">{{ props.item.group }}</td>
+        <td class="text-xs-left">{{ props.item.firstName }}</td>
+        <td class="text-xs-left">{{ props.item.lastName }}</td>
+        <td class="text-xs-left">{{ props.item.xp }}</td>
+        <td class="text-xs-left">{{ props.item.gold }}</td>
+        <td class="text-xs-left">{{ props.item.house }}</td>
+        <td class="text-xs-left">{{ props.item.guild }}</td>
+        <td class="text-xs-left">{{ props.item.level }}</td>
       </template>
     </v-data-table>
-    -->
+
   </v-container>
 </template>
 
 <script lang = "ts">
-import Vue from 'vue';
-import Component from 'vue-class-component';
-import {sheetApi} from "@/api/sheet";
+import Vue from "vue";
+import Component from "vue-class-component";
+import SheetApi, { Ranges } from "@/api/sheet";
+import Student from "@/api/student";
+import { setTimeout } from 'timers';
 
 @Component
 export default class HomePage extends Vue {
-  headers = [
+  private credential = require("@/api/credentials.json");
+  private APChemID = "1GoROrqRqCu1Iho8u2Lt7cot_N181IJiocPpnDzb1ZLg";
+  private googleAPI = gapi;
+  private gapiClient: any;
+  private leaderboard = Array<Student>();
+  private headers = [
       {
-        text: 'Name',
-        align: 'left',
-        sortable: true,
-        value: 'name',
+        text: "First Name",
+        align: "left",
+        sortable: false,
+        value: "firstName",
       },
-      { text: 'Rank', value: 'rank' , sortable: true},
-      { text: 'XP', value: 'xp',  sortable: true},
-      { text: 'Class', value: 'class' , sortable: false},
-      { text: 'Group', value: 'group' , sortable: false},
+      { text: "Last Name", value: "lastName" , sortable: false},
+      { text: "XP", value: "xp",  sortable: true},
+      { text: "Gold", value: "gold" , sortable: true},
+      { text: "House", value: "house" , sortable: false},
+      { text: "Guild", value: "guild" , sortable: false},
+      { text: "Level", value: "level" , sortable: false},
   ];
-  people = [
-    {
-      value: false,
-      name: 'Zoya Azfar',
-      rank: 43,
-      xp: 425,
-      gold: 0,
-      class: 'Palemoon',
-      group: 'Clerics of Palemoon',
-    },
-    {
-      value: false,
-      name: 'Anthony Carrion',
-      rank: 19,
-      xp: 725,
-      gold: 0,
-      class: 'Palemoon',
-      group: 'Knights of Palemoon',
-    },
-    {
-      value: false,
-      name: 'Winston Chloupek',
-      rank: 28,
-      xp: 625,
-      gold: 0,
-      class: 'Palemoon',
-      group: 'Knights of Palemoon',
-    },
-    {
-      value: false,
-      name: 'Christopher Collins',
-      rank: 11,
-      xp: 1000,
-      gold: 250.00,
-      class: 'Palemoon',
-      group: 'Archers of Palemoon',
-    },
-    {
-      value: false,
-      name: 'John	Conroy',
-      rank: 19,
-      xp: 725,
-      gold: 0,
-      class: 'Palemoon',
-      group: 'Knights of the periodic table',
-    },
-  ];
+  private pagination = {
+    sortBy: "xp",
+    descending: true,
+    rowsPerPage: 1000,
+  };
+
   constructor() {
     super();
   }
-  created() {
-    //console.log(sheetApi.getLeaderboard());
+  private created() {
+    this.googleAPI.load("client", this.startGoogleAPI);
+    console.log(this.leaderboard);
+    console.log(typeof(this.leaderboard));
   }
-  mounted() {
-    //sheetApi.getLeaderboard();
+
+  private mounted() {
+    setTimeout(() => {
+      this.getSheet();
+    }, 2000);
   }
-  
-  
+
+  private get isLoading() {
+    console.log(this.leaderboard === undefined || this.leaderboard.length === 0);
+    return (this.leaderboard === undefined || this.leaderboard.length === 0);
+  }
+
+  private startGoogleAPI() {
+    this.googleAPI.client.init({
+      apiKey: this.credential.config.apiKey,
+      clientId: this.credential.web.client_id,
+      scope: "https://www.googleapis.com/auth/spreadsheets.readonly",
+      discoveryDocs: ["https://sheets.googleapis.com/$discovery/rest?version=v4"],
+    }).then(() => {
+      return this.googleAPI.client;
+    }).then((response: any) => {
+      this.gapiClient = response;
+      console.log(response);
+      console.log(this.gapiClient);
+      console.log(this.gapiClient.sheets);
+    }, (reason: any) => {
+      console.log(reason);
+    });
+  }
+
+  private getSheet() {
+    console.log("getting client first" + this.gapiClient);
+    if (this.gapiClient.sheets !== undefined) {
+      console.log("I got the sheet!");
+      let sheetAPI = new SheetApi(this.gapiClient, this.APChemID);
+      // sheetAPI.loadLeaderBoard().then((res: Student[]) => {
+      //   this.leaderboard = res;
+      //   console.log(this.leaderboard);
+      // });
+      // sheetAPI.loadLeaderBoard();
+      //this.leaderboard = sheetAPI.getLeaderboard;
+      sheetAPI.loadLeaderBoard().then((res) => {
+        this.leaderboard = res;
+        console.log(this.leaderboard);
+      });
+    }
+  }
 }
 </script>
 

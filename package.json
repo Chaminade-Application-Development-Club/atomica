@@ -9,6 +9,8 @@
     "test:unit": "vue-cli-service test:unit"
   },
   "dependencies": {
+    "@types/gapi": "0.0.36",
+    "@types/gapi.auth2": "0.0.47",
     "axios": "^0.18.0",
     "firebase": "^5.4.2",
     "material-design-icons-iconfont": "^3.0.3",

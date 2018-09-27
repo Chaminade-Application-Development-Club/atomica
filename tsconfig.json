@@ -15,7 +15,9 @@
     "types": [
       "node",
       "mocha",
-      "chai"
+      "chai",
+      "gapi",
+      "gapi.auth2",
     ],
     "paths": {
       "@/*": [
