@@ -27,6 +27,7 @@ import Component from "vue-class-component";
 import SheetApi, { Ranges } from "@/api/sheet";
 import Student from "@/api/student";
 import { setTimeout } from 'timers';
+import { db } from "@/main";
 
 @Component
 export default class HomePage extends Vue {
@@ -34,7 +35,7 @@ export default class HomePage extends Vue {
   private APChemID = "1GoROrqRqCu1Iho8u2Lt7cot_N181IJiocPpnDzb1ZLg";
   private googleAPI = gapi;
   private gapiClient: any;
-  private leaderboard = Array<Student>();
+  private leaderboard = [];
   private headers = [
       {
         text: "First Name",
@@ -65,9 +66,14 @@ export default class HomePage extends Vue {
   }
 
   private mounted() {
-    setTimeout(() => {
-      this.getSheet();
-    }, 2000);
+    // setTimeout(() => {
+    //   this.getSheet();
+    // }, 2000);
+    db.collection("ap").doc("students").collection("studentsLog").get().then((collect) => {
+      console.log(collect.docs[0].data().students);
+      this.leaderboard = collect.docs[0].data().students;
+      console.log(this.leaderboard);
+    });
   }
 
   private get isLoading() {
@@ -93,23 +99,23 @@ export default class HomePage extends Vue {
     });
   }
 
-  private getSheet() {
-    console.log("getting client first" + this.gapiClient);
-    if (this.gapiClient.sheets !== undefined) {
-      console.log("I got the sheet!");
-      let sheetAPI = new SheetApi(this.gapiClient, this.APChemID);
-      // sheetAPI.loadLeaderBoard().then((res: Student[]) => {
-      //   this.leaderboard = res;
-      //   console.log(this.leaderboard);
-      // });
-      // sheetAPI.loadLeaderBoard();
-      //this.leaderboard = sheetAPI.getLeaderboard;
-      sheetAPI.loadLeaderBoard().then((res) => {
-        this.leaderboard = res;
-        console.log(this.leaderboard);
-      });
-    }
-  }
+  // private getSheet() {
+  //   console.log("getting client first" + this.gapiClient);
+  //   if (this.gapiClient.sheets !== undefined) {
+  //     console.log("I got the sheet!");
+  //     let sheetAPI = new SheetApi(this.gapiClient, this.APChemID);
+  //     // sheetAPI.loadLeaderBoard().then((res: Student[]) => {
+  //     //   this.leaderboard = res;
+  //     //   console.log(this.leaderboard);
+  //     // });
+  //     // sheetAPI.loadLeaderBoard();
+  //     //this.leaderboard = sheetAPI.getLeaderboard;
+  //     sheetAPI.loadLeaderBoard().then((res) => {
+  //       this.leaderboard = res;
+  //       console.log(this.leaderboard);
+  //     });
+  //   }
+  // }
 }
 </script>
 

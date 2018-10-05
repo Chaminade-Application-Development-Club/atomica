@@ -9,7 +9,7 @@ import Vuetify from 'vuetify';
 import "vuetify/dist/vuetify.min.css";
 import 'material-design-icons-iconfont/dist/material-design-icons.css';
 import '@mdi/font/css/materialdesignicons.css';
-
+import VeBar from "v-charts/lib/bar.common";
 import firebase from "firebase/app";
 
 const credential = require("@/api/credentials.json");
@@ -25,10 +25,12 @@ const gapiConfig = {
 
 Vue.config.productionTip = false;
 Vue.use(Vuetify);
+Vue.component(VeBar.name, VeBar);
 
 firebase.initializeApp(credential.config);
+export const db = firebase.firestore();
 const provider = new firebase.auth.GoogleAuthProvider();
-provider.addScope("https://www.googleapis.com/auth/spreadsheets.readonly");
+// provider.addScope("https://www.googleapis.com/auth/spreadsheets.readonly");
 firebase.auth().useDeviceLanguage();
 firebase.auth().onAuthStateChanged((user) => {
   new Vue({
